@@ -1,0 +1,27 @@
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/udaykiran1218/my-addressbook-cicd-project.git'
+            }
+        }
+        stage('Build with Maven') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('Deploy Tomcat with Ansible') {
+            steps {
+                // Run the Ansible playbook to install Tomcat
+                sh 'ansible-playbook -i <app-node-ip>, tomcat-install.yml'
+            }
+        }
+        stage('Deploy WAR') {
+            steps {
+                // Ansible or shell commands to deploy the WAR file to Tomcat
+                sh 'ansible-playbook -i <app-node-ip>, deploy-war.yml'
+            }
+        }
+    }
+}
