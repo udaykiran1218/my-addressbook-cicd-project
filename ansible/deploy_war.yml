@@ -1,0 +1,22 @@
+---
+- name: Deploy WAR file to Tomcat
+  hosts: app_servers
+  become: yes
+
+  vars:
+    war_source: "{{ lookup('env', 'WORKSPACE') }}/target/your-app.war"  # Adjust war name
+
+  tasks:
+    - name: Copy WAR file
+      copy:
+        src: "{{ war_source }}"
+        dest: /opt/tomcat/webapps/your-app.war
+        owner: tomcat
+        group: tomcat
+        mode: '0644'
+
+    - name: Restart Tomcat
+      shell: |
+        /opt/tomcat/bin/shutdown.sh || true
+        sleep 5
+        nohup /opt/tomcat/bin/startup.sh &
