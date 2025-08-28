@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-    MAVEN_HOME = '/usr/bin/mvn'
-    PATH ="${MAVEN_HOME}/bin:${env.PATH}"
+        MAVEN_HOME = '/usr/bin/mvn'
+        PATH = "${MAVEN_HOME}/bin:${env.PATH}"
     }
 
     stages {
@@ -20,16 +20,21 @@ pipeline {
 
         stage('Install Tomcat with Ansible') {
             steps {
-                dir('ansible') {
-                    sh 'ansible-playbook -i inventory.ini install_tomcat.yml'
+                // Use SSH agent with your Jenkins credential ID
+                sshagent(['203fa29b-8e15-434a-a960-38df4eb2dd67']) {
+                    dir('ansible') {
+                        sh 'ansible-playbook -i inventory.ini install_tomcat.yml'
+                    }
                 }
             }
         }
 
         stage('Deploy WAR with Ansible') {
             steps {
-                dir('ansible') {
-                    sh 'ansible-playbook -i inventory.ini deploy_war.yml'
+                sshagent(['203fa29b-8e15-434a-a960-38df4eb2dd67']) {
+                    dir('ansible') {
+                        sh 'ansible-playbook -i inventory.ini deploy_war.yml'
+                    }
                 }
             }
         }
@@ -44,4 +49,3 @@ pipeline {
         }
     }
 }
-
