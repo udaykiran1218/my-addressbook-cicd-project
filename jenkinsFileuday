@@ -1,32 +1,47 @@
 pipeline {
     agent any
 
+    environment {
+        MAVEN_HOME = tool 'Maven 3.8.5' // Adjust to your configured Maven version name
+    }
+
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                git 'https://github.com/YOUR_USERNAME/YOUR_REPO.git'
+                git branch: 'main', url: 'https://github.com/your-username/your-repo.git'
             }
         }
 
         stage('Build with Maven') {
             steps {
-                sh 'mvn clean package'
+                sh "${MAVEN_HOME}/bin/mvn clean package"
             }
         }
 
         stage('Install Tomcat with Ansible') {
             steps {
-                sh 'ansible-playbook ansible/deploy-tomcat.yml -i ansible/inventory'
+                dir('ansible') {
+                    sh 'ansible-playbook -i inventory.ini install_tomcat.yml'
+                }
             }
         }
 
-        stage('Deploy WAR to Tomcat') {
+        stage('Deploy WAR with Ansible') {
             steps {
-                sh '''
-                    ansible all -i ansible/inventory -m copy -a "src=target/myapp.war dest=/opt/tomcat/webapps/myapp.war owner=tomcat group=tomcat mode=0644"
-                    ansible all -i ansible/inventory -m systemd -a "name=tomcat state=restarted"
-                '''
+                dir('ansible') {
+                    sh 'ansible-playbook -i inventory.ini deploy_war.yml'
+                }
             }
         }
     }
+
+    post {
+        success {
+            echo 'Deployment successful!'
+        }
+        failure {
+            echo 'Deployment failed.'
+        }
+    }
 }
+
