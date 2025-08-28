@@ -1,5 +1,11 @@
 pipeline {
     agent any
+    environment {
+    MAVEN_HOME = '/usr/bin/mvn'
+    PATH ="${MAVEN_HOME}/bin:${env.PATH}"
+    }
+
+Apache Maven 3.8.7
 
     stages {
         stage('Checkout Code') {
