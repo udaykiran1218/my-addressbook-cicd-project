@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/YOUR_USERNAME/YOUR_REPO.git'
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Install Tomcat with Ansible') {
+            steps {
+                sh 'ansible-playbook ansible/deploy-tomcat.yml -i ansible/inventory'
+            }
+        }
+
+        stage('Deploy WAR to Tomcat') {
+            steps {
+                sh '''
+                    ansible all -i ansible/inventory -m copy -a "src=target/myapp.war dest=/opt/tomcat/webapps/myapp.war owner=tomcat group=tomcat mode=0644"
+                    ansible all -i ansible/inventory -m systemd -a "name=tomcat state=restarted"
+                '''
+            }
+        }
+    }
+}
