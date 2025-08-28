@@ -17,6 +17,7 @@
       user:
         name: tomcat
         shell: /bin/false
+        state: present
 
     - name: Download Tomcat
       get_url:
@@ -29,10 +30,13 @@
         dest: /opt/
         remote_src: yes
 
-    - name: Rename tomcat directory
+    - name: Rename tomcat directory if not exists
       command: mv /opt/apache-tomcat-9.0.85 /opt/tomcat
+      args:
+        removes: /opt/apache-tomcat-9.0.85
+      when: not (ansible_facts['files']['/opt/tomcat'] is defined)
 
-    - name: Change ownership
+    - name: Change ownership of Tomcat directory
       file:
         path: /opt/tomcat
         owner: tomcat
@@ -40,4 +44,6 @@
         recurse: yes
 
     - name: Start Tomcat
-      shell: nohup /opt/tomcat/bin/startup.sh &
+      shell: /opt/tomcat/bin/startup.sh
+      args:
+        executable: /bin/bash
