@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        MAVEN_HOME = tool 'Maven 3.8.5' // Adjust to your configured Maven version name
+        MAVEN_HOME = tool 'Maven 3.8.5'
     }
 
     stages {
