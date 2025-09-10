@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'udaykiran1218/springboot:latest'
-        DOCKER_CREDENTIALS_ID = 'docker'  // Jenkins credentials ID for Docker Hub
+        DOCKER_CREDENTIALS_ID = 'docker'  // Docker Hub credentials ID in Jenkins
     }
 
     tools {
@@ -20,7 +20,7 @@ pipeline {
 
         stage('Build Spring Boot App') {
             steps {
-                sh 'mvn clean package -DskipTests' 
+                sh 'mvn clean package -DskipTests'
             }
         }
 
@@ -41,11 +41,22 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to EKS') {
+            steps {
+                sh '''
+                    echo "Deploying to EKS..."
+                    kubectl apply -f k8s/deployment.yaml
+                    kubectl apply -f k8s/service.yaml
+                    kubectl rollout status deployment/springboot-app
+                '''
+            }
+        }
     }
 
     post {
         success {
-            echo 'Build and Docker image push completed successfully!'
+            echo 'Build, push, and deployment to EKS completed successfully!'
         }
         failure {
             echo 'Pipeline failed. Check the logs!'
