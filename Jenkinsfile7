@@ -20,7 +20,7 @@ pipeline {
 
         stage('Build Spring Boot App') {
             steps {
-                sh './mvnw clean package -DskipTests' 
+                sh 'mvn clean package -DskipTests' 
             }
         }
 
