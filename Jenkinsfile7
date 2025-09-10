@@ -14,13 +14,13 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git url: 'https://github.com/your-username/your-repo.git', branch: 'main'
+                git url: 'https://github.com/udaykiran1218/my-addressbook-cicd-project.git', branch: 'master'
             }
         }
 
         stage('Build Spring Boot App') {
             steps {
-                sh './mvnw clean package -DskipTests'  // Use mvnw if present, otherwise 'mvn clean package'
+                sh './mvnw clean package -DskipTests' 
             }
         }
 
